@@ -20,7 +20,3 @@ workflows:
         script: flutter build apk --release
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
-    publishing:
-      email:
-        recipients:
-          - ${CM_EMAIL}
