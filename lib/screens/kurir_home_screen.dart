@@ -10,6 +10,7 @@ import '../state/kurir_state.dart';
 import '../utils/format.dart';
 import '../widgets/order_card.dart';
 import 'order_detail_screen.dart';
+import 'edit_profil_screen.dart';
 import 'order_notif_screen.dart';
 import 'penarikan_screen.dart';
 
@@ -20,10 +21,27 @@ class KurirHomeScreen extends StatefulWidget {
   State<KurirHomeScreen> createState() => _KurirHomeScreenState();
 }
 
-class _KurirHomeScreenState extends State<KurirHomeScreen> {
+class _KurirHomeScreenState extends State<KurirHomeScreen>
+    with SingleTickerProviderStateMixin {
   int _tab = 0;
   bool _notifOpen = false;
-  final _pageController = PageController();
+  late final AnimationController _tabAnim = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+    value: 1,
+  );
+  late final Animation<double> _tabOpacity =
+      CurvedAnimation(parent: _tabAnim, curve: Curves.easeOut);
+  late final Animation<Offset> _tabSlide = Tween<Offset>(
+    begin: const Offset(0, 0.03),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _tabAnim, curve: Curves.easeOutCubic));
+
+  void _switchTab(int i) {
+    if (i == _tab) return;
+    setState(() => _tab = i);
+    _tabAnim.forward(from: 0);
+  }
 
   @override
   void initState() {
@@ -98,34 +116,31 @@ class _KurirHomeScreenState extends State<KurirHomeScreen> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _tabAnim.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (i) => setState(() => _tab = i),
-        children: [
-          _DashboardTab(onAction: _action, onOpenDetail: _openDetail),
-          _RiwayatTab(onAction: _action, onOpenDetail: _openDetail),
-          const _SaldoTab(),
-          const _ProfilTab(),
-        ],
+      body: FadeTransition(
+        opacity: _tabOpacity,
+        child: SlideTransition(
+          position: _tabSlide,
+          child: IndexedStack(
+            index: _tab,
+            children: [
+              _DashboardTab(onAction: _action, onOpenDetail: _openDetail),
+              _RiwayatTab(onAction: _action, onOpenDetail: _openDetail),
+              const _SaldoTab(),
+              const _ProfilTab(),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
-        onDestinationSelected: (i) {
-          if (i == _tab) return;
-          _pageController.animateToPage(
-            i,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
+        onDestinationSelected: _switchTab,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
           NavigationDestination(icon: Icon(Icons.history), label: 'Riwayat'),
@@ -155,6 +170,28 @@ class _DashboardTab extends StatelessWidget {
           children: [
             _header(context, app, ks),
             const SizedBox(height: 16),
+            if (!ks.connected)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.cloud_off, size: 18, color: Colors.orange.shade800),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Tidak terhubung ke server — order baru mungkin tidak masuk.',
+                        style: TextStyle(color: Colors.orange.shade900, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             _SaldoMiniCard(onTarik: () {
               Navigator.push(context, CupertinoPageRoute(builder: (_) => const PenarikanScreen()));
             }),
@@ -322,6 +359,17 @@ class _RiwayatTab extends StatelessWidget {
             const SizedBox(height: 16),
             if (ks.loading && ks.dashboard == null)
               const Center(child: Padding(padding: EdgeInsets.all(48), child: CircularProgressIndicator()))
+            else if (ks.error != null && ks.dashboard == null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Column(
+                  children: [
+                    Text(ks.error!, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600])),
+                    const SizedBox(height: 12),
+                    ElevatedButton(onPressed: ks.refresh, child: const Text('Coba lagi')),
+                  ],
+                ),
+              )
             else if (riwayat.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 48),
@@ -609,6 +657,25 @@ class _ProfilTab extends StatelessWidget {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(builder: (_) => const EditProfilScreen()),
+                );
+              },
+              icon: const Icon(Icons.edit_outlined),
+              label: const Text('Edit Profil'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF171717),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: OutlinedButton.icon(

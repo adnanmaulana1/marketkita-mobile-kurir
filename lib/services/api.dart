@@ -76,6 +76,22 @@ class Api {
     return _check(res);
   }
 
+  /// Upload multipart (file + field) dengan token Bearer.
+  static Future<Map<String, dynamic>> postMultipart(
+    String path,
+    Map<String, String> fields,
+    String fileField,
+    String filePath,
+  ) async {
+    final req = http.MultipartRequest('POST', _uri(path));
+    req.headers.addAll(_headers());
+    req.fields.addAll(fields);
+    req.files.add(await http.MultipartFile.fromPath(fileField, filePath));
+    final streamed = await req.send().timeout(const Duration(seconds: 30));
+    final res = await http.Response.fromStream(streamed);
+    return _check(res);
+  }
+
   // ===== AUTH =====
   static Future<User> login(String email, String password) async {
     final res = await http.post(_uri('/api/auth/login'), body: {'email': email, 'password': password});

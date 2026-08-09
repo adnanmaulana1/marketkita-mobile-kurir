@@ -70,5 +70,46 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update profil (nama, telepon, kendaraan) dan opsional ganti kata sandi.
+  Future<void> updateProfil({
+    required String nama,
+    required String telepon,
+    required String kendaraan,
+    String passwordLama = '',
+    String passwordBaru = '',
+    String konfirmasi = '',
+  }) async {
+    final res = await Api.post('/api/auth/me', {
+      'nama': nama,
+      'telepon': telepon,
+      'kendaraan': kendaraan,
+      if (passwordBaru.isNotEmpty) 'password_lama': passwordLama,
+      if (passwordBaru.isNotEmpty) 'password_baru': passwordBaru,
+      if (passwordBaru.isNotEmpty) 'konfirmasi': konfirmasi,
+    });
+    _user = User.fromJson(res['user'] as Map<String, dynamic>);
+    notifyListeners();
+  }
+
+  /// Upload foto profil, lalu perbarui user dari respons server.
+  Future<void> uploadFoto(String path) async {
+    final res = await Api.postMultipart('/api/auth/foto', {}, 'file', path);
+    final url = res['url'] as String?;
+    if (url != null && _user != null) {
+      _user = User(
+        id: _user!.id,
+        nama: _user!.nama,
+        email: _user!.email,
+        telepon: _user!.telepon,
+        role: _user!.role,
+        kendaraan: _user!.kendaraan,
+        saldo: _user!.saldo,
+        fotoProfil: url,
+        isVerified: _user!.isVerified,
+      );
+      notifyListeners();
+    }
+  }
+
   bool isKurir() => _user?.role == 'kurir';
 }
