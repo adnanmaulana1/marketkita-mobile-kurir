@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import '../config.dart';
 import '../models/order.dart';
 
 /// Peta pelacakan real-time saat kurir mengantar pesanan.
@@ -588,7 +589,7 @@ class _PhotoMarker extends StatelessWidget {
       child: hasFoto
           ? ClipOval(
               child: Image.network(
-                fotoUrl!,
+                AppConfig.resolveUrl(fotoUrl),
                 width: 40,
                 height: 40,
                 fit: BoxFit.cover,
@@ -654,7 +655,7 @@ class _StoreMarker extends StatelessWidget {
       child: hasFoto
           ? ClipOval(
               child: Image.network(
-                fotoUrl!,
+                AppConfig.resolveUrl(fotoUrl),
                 width: 40,
                 height: 40,
                 fit: BoxFit.cover,

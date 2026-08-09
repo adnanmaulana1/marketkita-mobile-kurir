@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../config.dart';
 import '../models/order.dart';
 import '../models/transaksi.dart';
 import '../models/user.dart';
@@ -715,7 +716,7 @@ class _ProfilTab extends StatelessWidget {
               radius: 43,
               backgroundColor: const Color(0xFF3A3A3A),
               child: u?.fotoProfil.isNotEmpty == true
-                  ? ClipOval(child: Image.network(u!.fotoProfil, width: 86, height: 86, fit: BoxFit.cover))
+                  ? ClipOval(child: Image.network(AppConfig.resolveUrl(u!.fotoProfil), width: 86, height: 86, fit: BoxFit.cover))
                   : const Icon(Icons.two_wheeler, size: 44, color: Colors.white),
             ),
           ),

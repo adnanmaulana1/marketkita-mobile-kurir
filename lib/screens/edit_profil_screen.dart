@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../config.dart';
 import '../services/api.dart';
 import '../state/app_state.dart';
 
@@ -176,7 +177,9 @@ class _EditProfilScreenState extends State<EditProfilScreen> {
                           backgroundColor: Colors.grey.shade200,
                           backgroundImage: _fotoBaru != null
                               ? FileImage(_fotoBaru!)
-                              : (showFoto ? NetworkImage(fotoUrl) : null),
+                              : (showFoto
+                                    ? NetworkImage(AppConfig.resolveUrl(fotoUrl))
+                                    : null),
                           child: (_fotoBaru == null && !showFoto)
                               ? const Icon(Icons.person, size: 48, color: Colors.grey)
                               : null,

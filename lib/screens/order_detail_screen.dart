@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config.dart';
 import '../models/order.dart';
 import '../utils/format.dart';
 import 'delivery_tracking_screen.dart';
@@ -149,7 +150,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       !isMine &&
                       onAction != null)
                     ElevatedButton(
-                      onPressed: _busy ? null : () => _run('ambil'),
+                      onPressed: _busy
+                          ? null
+                          : () async {
+                              await _run('ambil');
+                              if (mounted &&
+                                  _order.statusKurir == 'diambil') {
+                                _openTracking(this.context);
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF171717),
                         foregroundColor: Colors.white,
@@ -669,7 +678,7 @@ class _StoreFotoMarker extends StatelessWidget {
       child: hasFoto
           ? ClipOval(
               child: Image.network(
-                fotoUrl!,
+                AppConfig.resolveUrl(fotoUrl),
                 width: 38,
                 height: 38,
                 fit: BoxFit.cover,
