@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'screens/kurir_home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/splash_screen.dart';
 import 'state/app_state.dart';
@@ -44,6 +45,7 @@ class MarketKitaKurirApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (_) => const SplashScreen(),
+          '/onboarding': (_) => const OnboardingScreen(),
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
           '/kurir': (_) => const KurirHomeScreen(),
