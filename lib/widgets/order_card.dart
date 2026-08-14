@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../utils/format.dart';
 
+const Color _kDark = Color(0xFF171717);
+
 class OrderCard extends StatelessWidget {
   final Order order;
   final bool isMine;
@@ -20,7 +22,7 @@ class OrderCard extends StatelessWidget {
   Color _kurirColor(String s) {
     switch (s) {
       case 'menunggu':
-        return Colors.green;
+        return const Color(0xFF059669);
       case 'diambil':
         return Colors.blue;
       case 'perjalanan':
@@ -37,14 +39,17 @@ class OrderCard extends StatelessWidget {
     final kc = _kurirColor(order.statusKurir);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 3)),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,8 +115,9 @@ class OrderCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => onAction!('ambil', order.id),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF171717),
+                    backgroundColor: _kDark,
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Ambil Order'),
                 ),
